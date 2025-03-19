@@ -1,0 +1,107 @@
+---
+title: "MB5370_Module_04_JC"
+author: "James Coon"
+date: "2025-03-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Module 4, Data Science in R
+
+### Load Packages
+```{r Load Packages}
+install.packages("tidyverse", 'ggplot2')
+library(tidyverse, ggplot2)
+```
+
+### Load Data
+```{r mpg}
+mpg
+```
+
+### Create first plot
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+### Graphing Template:
+
+ggplot(data = <DATA>) + 
+  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+
+```{r Graphing}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, colour = class)) #color by class!
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, size = class)) #point size by class!
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class)) #alpha is transparency, thus transparency by class!
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class)) #point shape by class!
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue") #can manually make all points whatever color you want!
+```
+What happens if aes(colour = displ < 5)?
+It creates a legend which displays values over a 5 dspl in turquoise and under in red.
+```{r Question}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color = displ < 5))
+```
+
+### Facets and Panel Plots
+
+Creates plots in a grid format, where it's easier to compare them.
+```{r Facets and Panel Plots}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2) #Creates 2 rows, regardless of amount of variables/plots
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(. ~ cyl) #If showing more than 1 variable as a row, use facet_grid instead of facet_wrap.
+
+```
+Exercise-
+
+What does ncol and nrow do?
+They choose the number of columns and rows respectively.
+
+What other options control the layout of the individual panels? 
+Reorder and as.table
+
+## Fitting Simple Lines
+
+```{r Fitting Simple Lines}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) #Plot as points
+
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy)) #Plot as smooth line! geom_smooth
+
+ggplot(data = mpg) + 
+  geom_smooth(mapping = aes(x = displ, y = hwy, linetype = drv)) #Can change plot line by class!
+
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, group = drv, color=drv, linetype = drv)) #Change some aesthetic based on drv
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy)) #Plots both line and points. Must just be used additively
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() + 
+  geom_smooth() #Same as above, but more efficient
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth() #Style each point individually based upon many variables
+```
+
