@@ -213,7 +213,7 @@ ggplot(data = <DATA>) +
   ) +
   <FACET_FUNCTION>
 
-## ASSIGNMENT
+## Workshop 1 Assignment
 
 IMPORT DATASET
 ```{r}
@@ -230,11 +230,11 @@ JA_Fisheries$Year<- as.numeric(JA_Fisheries$Year) #This held us up for a half ho
 JA_Fisheries <- na.omit(JA_Fisheries)
 str(JA_Fisheries$Year)
 ggplot(data= JA_Fisheries) + 
- geom_point(mapping = aes(x= Year, y= Japan), color="black", shape = "Australia") +
- geom_point(mapping = aes(x= Year, y= Australia), color="grey", shape = "Japan") +
+ geom_point(mapping = aes(x= Year, y= Japan), color="black") +
+ geom_point(mapping = aes(x= Year, y= Australia), color="grey") +
  geom_smooth(aes(x= Year, y= Japan), color="black", method='loess') +
   geom_smooth(aes(x= Year, y= Australia), color="grey", method='loess') +
-labs(y = "Aquaculture Production (Metric Tons)", x = "Year", shape = "Country")
+labs(y = "Aquaculture Production (Metric Tons)", x = "Year", color = 'Country') #This coloration is better, but not for color blindness.
 ```
 
 ```{r}
@@ -243,9 +243,217 @@ ggplot(data = JA_Fisheries) +
   geom_point(aes(x = Year, y = Australia, color = "Australia", shape = "Australia")) +
   geom_smooth(aes(x = Year, y = Japan, color = "Japan"), method = "loess") +
   geom_smooth(aes(x = Year, y = Australia, color = "Australia"), method = "loess") +
-  labs(y = "Fish Catch (tons)", x = "Year", color = "Country", shape= "Country")  # Legend title
+  labs(y = "Aquaculture Production (tons)", x = "Year", color = "Country", shape= "Country")  # Legend title, and symbology is much better for the color blind, though color may not be ideal.
+```
+Caption- The aquaculture production in Australia is much lower than in Japan.  However, there is a noticeable increase in Australia's production recently (the 1990s) while Japan has been declining consistently since about 1995.  Data provided by World Data Bank.
+
+#Workshop 2- GGplot2 for Communication
+
+## Labels
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Fuel efficiency generally decreases with engine size", #Main title label
+    subtitle = "Two seaters (sports cars) are an exception because of their light weight", #smaller title label
+    caption = "Data from fueleconomy.gov" #by default appears on the bottom of page
+  )
+
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  geom_smooth(se = FALSE) +
+  labs(
+    x = "Engine displacement (L)", #axis titles
+    y = "Highway fuel economy (mpg)",
+    colour = "Car type" #legend title
+  )
 ```
 
-#Workshop 2
+## Annotations
+
+```{r}
+best_in_class <- mpg %>%
+  group_by(class) %>%
+  filter(row_number(desc(hwy)) == 1) #This bit of code filters out the best mpg car for each car class!
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  geom_text(aes(label = model), data = best_in_class) #annotates each best car model for the mpg we selected earlier!  Annotation overlapping can be resolved with nudge()
+```
+
+## Scales
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) #Automatically selects scales for you, but you can tweak them if you need
+
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  scale_x_continuous() +
+  scale_y_continuous() +
+  scale_colour_discrete() #Can also provide ylims and xlims!
+```
+
+## Axis Ticks
+
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  scale_y_continuous(breaks = seq(15, 40, by = 5)) #Seq sets limits and selects ticks by the interval selected within the limits.
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  scale_x_continuous(labels = NULL) +
+  scale_y_continuous(labels = NULL) #Set to null to rid of labels all together!
+```
+
+## Legends and Color Schemes
+
+```{r}
+base <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class))
+
+base + theme(legend.position = "left")
+base + theme(legend.position = "top")
+base + theme(legend.position = "bottom")
+base + theme(legend.position = "right") #Simply changes the position of the legend in relation to the plot
+```
+
+## Replacing a Scale
+
+```{r}
+ggplot(diamonds, aes(carat, price)) +
+  geom_bin2d() + 
+  scale_x_log10() + 
+  scale_y_log10()  #Scale transformations can show important information!  Remember to say they were transformed for transparency.
+```
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = drv)) #default color scale
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = drv)) +
+  scale_colour_brewer(palette = "Set1") #Creates own color palette!
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = drv, shape = drv)) + #adding shape makes graph interpretable when black and white as well! good for color blindness and cheap printing.
+  scale_colour_brewer(palette = "Set1")
+```
+```{r}
+presidential %>%
+  mutate(id = 33 + row_number()) %>%
+  ggplot(aes(start, id, colour = party)) +
+    geom_point() +
+    geom_segment(aes(xend = end, yend = id)) +
+    scale_colour_manual(values = c(Republican = "red", Democratic = "blue")) #manually selects colors if needed to be pre defined
+```
+```{r}
+#install.packages('viridis') #Sweet packages
+#install.packages('hexbin') #Another one
+library(viridis)
+library(hexbin)
+
+df <- tibble( # note we're just making a fake dataset so we can plot it
+  x = rnorm(10000),
+  y = rnorm(10000)
+)
+ggplot(df, aes(x, y)) +
+  geom_hex() + # a new geom!
+  coord_fixed()
+
+ggplot(df, aes(x, y)) +
+  geom_hex() +
+  viridis::scale_fill_viridis() +
+  coord_fixed()
+```
+
+## Themes
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  theme_bw() #black and white theme
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  theme_light() #lighter graph borders
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  theme_classic() #no grid lines, only axis borders
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  theme_dark() #Darkened graph background, difficult to read nless lighter data points
+
+theme (panel.border = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        legend.position="bottom",
+        legend.title=element_blank(),
+        legend.text=element_text(size=8),
+        panel.grid.major = element_blank(),
+        legend.key = element_blank(),
+        legend.background = element_blank(),
+        axis.text.y=element_text(colour="black"),
+        axis.text.x=element_text(colour="black"),
+        text=element_text(family="Arial"))  #Can develop yuor own themes by setting every variable yourself
+```
+
+## Save and Export Your Figures
+
+```{r}
+ggplot(mpg, aes(displ, hwy)) + geom_point()
+
+ggsave("my-plot.pdf")
+#> Saving 7 x 4.32 in image to your working directory
+```
+
+##QFish Assignment
+
+```{r Import Otter Trawl Data}
+library(readxl)
+export <- read_excel("C:/Users/jacoo/Downloads/export.xlsx")
+View(export) #Import Dataset
+QFish <- export
+```
+
+```{r Cleaning Data}
+#Data is fairly clean, need to remove last year (2024) because it is incomplete.
+#QFish <- QFish %>%
+  #slice(-n())
+#view(QFish)
+#commented out as to not over-use the command and lose data
+```
+
+```{r Plotting}
+QFish$Tonnes <- as.numeric(QFish$Tonnes)
+QFish$Days <- as.numeric(QFish$Days)
+QFish$CalendarYear <- as.numeric(QFish$CalendarYear)
+ggplot(data= QFish) + 
+  geom_point(aes(x = CalendarYear, y = Days, color = "Days"), alpha = 0.7) +
+  geom_point(aes(x = CalendarYear, y = Tonnes, color = "Tonnes"), alpha = 0.7) +
+  geom_smooth(aes(x = CalendarYear, y = Days, color = "Days"), method = 'loess', se= FALSE) +
+  geom_smooth(aes(x = CalendarYear, y = Tonnes, color = "Tonnes"), method = 'loess', se= FALSE) +
+  scale_color_manual(values = c("black", "red")) +
+  labs(y = "Fishing Effort (Days) or Yield (Tonnes)", x = "Year", color = "Measure") +
+  theme_bw() +
+  theme(panel.grid = element_blank()) #Use minimal theme for clarity
+```
+Caption- Otter trawl efforts have decreased quite quickly since the 1990s while yields have been decreasing very slightly ever since. This could be due to an increase in technology efficiency and overfishing depleted populations. (Data from QFish.fisheries.qld.gov)
+
+
+
+
 
 
