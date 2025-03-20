@@ -215,5 +215,37 @@ ggplot(data = <DATA>) +
 
 ## ASSIGNMENT
 
+IMPORT DATASET
+```{r}
+library(readxl)
+API_ER_FSH_AQUA_MT_DS2_en_excel_v2_967 <- read_excel("C:/Users/jacoo/Downloads/API_ER.FSH.AQUA.MT_DS2_en_excel_v2_967.xls", 
+    sheet = "Sheet2")
+View(API_ER_FSH_AQUA_MT_DS2_en_excel_v2_967)
+JA_Fisheries <- API_ER_FSH_AQUA_MT_DS2_en_excel_v2_967
+```
+
+Alter the plot!
+```{r Assignment exercise}
+JA_Fisheries$Year<- as.numeric(JA_Fisheries$Year) #This held us up for a half hour lol.  Need to assign to the data sheet, not just as.numeric(data)
+JA_Fisheries <- na.omit(JA_Fisheries)
+str(JA_Fisheries$Year)
+ggplot(data= JA_Fisheries) + 
+ geom_point(mapping = aes(x= Year, y= Japan), color="black", shape = "Australia") +
+ geom_point(mapping = aes(x= Year, y= Australia), color="grey", shape = "Japan") +
+ geom_smooth(aes(x= Year, y= Japan), color="black", method='loess') +
+  geom_smooth(aes(x= Year, y= Australia), color="grey", method='loess') +
+labs(y = "Aquaculture Production (Metric Tons)", x = "Year", shape = "Country")
+```
+
+```{r}
+ggplot(data = JA_Fisheries) + 
+  geom_point(aes(x = Year, y = Japan, color = "Japan", shape = "Japan")) +
+  geom_point(aes(x = Year, y = Australia, color = "Australia", shape = "Australia")) +
+  geom_smooth(aes(x = Year, y = Japan, color = "Japan"), method = "loess") +
+  geom_smooth(aes(x = Year, y = Australia, color = "Australia"), method = "loess") +
+  labs(y = "Fish Catch (tons)", x = "Year", color = "Country", shape= "Country")  # Legend title
+```
+
+#Workshop 2
 
 
