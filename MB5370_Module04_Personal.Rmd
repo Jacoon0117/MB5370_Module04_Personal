@@ -2,7 +2,9 @@
 title: "MB5370_Module_04_JC"
 author: "James Coon"
 date: "2025-03-19"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -13,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Load Packages
 ```{r Load Packages}
-install.packages("tidyverse", 'ggplot2')
+#install.packages("tidyverse", 'ggplot2')
 library(tidyverse, ggplot2)
 ```
 
@@ -452,8 +454,35 @@ ggplot(data= QFish) +
 ```
 Caption- Otter trawl efforts have decreased quite quickly since the 1990s while yields have been decreasing very slightly ever since. This could be due to an increase in technology efficiency and overfishing depleted populations. (Data from QFish.fisheries.qld.gov)
 
+```{r Exercise 4.4.1}
+table1 #Cases and population are displayed by country and by year in the same row.
+table2 #Cases and population are shown in different rows, differentiated by column "type"
+table3 #Cases and population are condensed into a single column labelled "rate", showing the rate of cases in the population.
+
+#From table1, select cases and population by year and country using a pipe function and pivot_longer.  Then, use the mutate function to create and store the correct values back in their respective place.
+```
 
 
+```{r 4.5.5 Exercise}
+stocks <- tibble(
+  year   = c(2015, 2015, 2016, 2016),
+  half  = c(   1,    2,     1,    2),
+  return = c(1.88, 0.59, 0.92, 0.17)
+)
+stocks %>% 
+  pivot_wider(names_from = year, values_from = return) %>% 
+  pivot_longer(`2015`:`2016`, names_to = "year", values_to = "return")
+#They are symmetrical in the actual hard data, just not the exact order. It seems to be sorting the data based on the column "half". 
 
+#The code fails because there is no year 1999 or 2000 in the existing data.
 
+#The table should be made longer.  the variables are 'Gender', 'Pregnant', and 'count'.
+```
 
+```{r Exercise 4.7.3}
+read_csv("a,b\n1,2,3\n4,5,6") #Each row has 3 values, but there's only 2 columns.
+read_csv("a,b,c\n1,2\n1,2,3,4") #There are 3 columns, but rows have 2 and 4 values.  Each must have 3 values to match the columns.
+read_csv("a,b\n\"1") #Quotes issue messes with the way the computer reads the code.
+read_csv("a,b\n1,2\na,b") #Has issue with character vs numeric type in certain row.
+read_csv("a;b\n1;3") #Uses ; when read.csv expects commas.
+```
